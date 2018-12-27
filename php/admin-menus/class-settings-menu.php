@@ -21,7 +21,7 @@ class Code_Snippets_Settings_Menu extends Code_Snippets_Admin_Menu {
 	/**
 	 * Executed when the admin page is loaded
 	 */
-	function load() {
+	public function load() {
 		parent::load();
 
 		if ( isset( $_GET['reset_settings'] ) && $_GET['reset_settings'] ) {
@@ -51,14 +51,49 @@ class Code_Snippets_Settings_Menu extends Code_Snippets_Admin_Menu {
 	}
 
 	/**
+	 * Enqueue the stylesheet for the settings menu
+	 */
+	public function enqueue_assets() {
+		$plugin = code_snippets();
+
+		wp_enqueue_style(
+			'code-snippets-edit',
+			plugins_url( 'css/min/settings.css', $plugin->file ),
+			array(), $plugin->version
+		);
+
+		code_snippets_editor_settings_preview_assets();
+	}
+
+	/**
 	 * Render the admin screen
 	 */
-	function render() {
+	public function render() {
 		$update_url = is_network_admin() ? add_query_arg( 'update_site_option', true ) : admin_url( 'options.php' );
 
 		?>
 		<div class="wrap">
-			<h1><?php esc_html_e( 'Settings', 'code-snippets' ); ?></h1>
+			<h1><?php esc_html_e( 'Settings', 'code-snippets' );
+
+				if ( code_snippets()->admin->is_compact_menu() ) {
+
+					printf( '<a href="%2$s" class="page-title-action">%1$s</a>',
+						esc_html_x( 'Manage', 'snippets', 'code-snippets' ),
+						code_snippets()->get_menu_url()
+					);
+
+					printf( '<a href="%2$s" class="page-title-action">%1$s</a>',
+						esc_html_x( 'Add New', 'snippet', 'code-snippets' ),
+						code_snippets()->get_menu_url( 'add' )
+					);
+
+					printf( '<a href="%2$s" class="page-title-action">%1$s</a>',
+						esc_html_x( 'Import', 'snippets', 'code-snippets' ),
+						code_snippets()->get_menu_url( 'import' )
+					);
+				}
+
+			?></h1>
 
 			<?php settings_errors( 'code-snippets-settings-notices' ); ?>
 
